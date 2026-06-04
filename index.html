@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HM Earn BD</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // 🔗 সুপ্রাবেস প্রজেক্ট লিংক ও Anon Key ( বাগ ফিক্সড )
         const SUPABASE_URL = "https://dmvkwenjlsbkbyvgbxil.supabase.co";
         const SUPABASE_KEY = "sb_publishable_wgBfBbb6WkltJQdNcR2B5A_tzdp5XaS";
         const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -47,7 +45,6 @@
         .page.active {
             display: block;
         }
-        /* Balance Card */
         .balance-card {
             background: linear-gradient(135deg, #1e1b4b, #311042);
             border-radius: 15px;
@@ -73,7 +70,6 @@
             font-size: 12px;
             color: #4ade80;
         }
-        /* Notice Box */
         .notice-box {
             background: rgba(22, 34, 56, 0.6);
             border-left: 4px solid #00bcff;
@@ -84,7 +80,6 @@
             margin-bottom: 20px;
             border: 1px solid #1e293b;
         }
-        /* Grid Buttons Dashboard */
         .grid-buttons {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -110,7 +105,6 @@
             background: #1e293b;
             transform: scale(0.98);
         }
-        /* Section Header */
         .section-title {
             font-size: 15px;
             font-weight: bold;
@@ -120,7 +114,6 @@
             padding-left: 8px;
             color: #94a3b8;
         }
-        /* Task System Style */
         .task-card {
             background: #111a2e;
             border: 1px solid #1e293b;
@@ -161,7 +154,6 @@
             color: #64748b;
             cursor: not-allowed;
         }
-        /* Investment Packages Styling */
         .pkg-card {
             background: #111a2e;
             border: 1px solid #1e293b;
@@ -195,7 +187,6 @@
         .pkg-details b {
             color: #4ade80;
         }
-        /* Popups Custom Modals */
         .popup-modal {
             display: none;
             position: fixed;
@@ -256,7 +247,6 @@
             cursor: pointer;
             margin-top: 5px;
         }
-        /* Stats Grid Inside Modal */
         .refer-stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -279,7 +269,6 @@
             color: #94a3b8;
             margin-top: 2px;
         }
-        /* Refer Fake Warning Box */
         .refer-warning-box {
             background: rgba(239, 68, 68, 0.1);
             border: 1px solid rgba(239, 68, 68, 0.4);
@@ -297,7 +286,6 @@
             line-height: 1.4;
             font-weight: 500;
         }
-        /* Salary Box Style */
         .salary-box {
             background: rgba(245, 158, 11, 0.1);
             border: 1px dashed #f59e0b;
@@ -306,7 +294,6 @@
             margin-top: 15px;
             text-align: left;
         }
-        /* Profile System */
         .profile-info {
             background: #111a2e;
             border-radius: 12px;
@@ -327,7 +314,6 @@
         .profile-label { color: #94a3b8; }
         .profile-value { color: #fff; font-weight: bold; }
         
-        /* Bottom Sticky Navbar */
         .navbar {
             position: fixed;
             bottom: 0; left: 0; right: 0;
@@ -478,7 +464,6 @@
         <button class="submit-btn" style="background: #ef4444; margin-bottom: 15px;" onclick="openModal('withdraw-modal')">💳 WITHDRAW BALANCE</button>
     </div>
 
-
     <div id="topup-modal" class="popup-modal">
         <div class="popup-content">
             <span class="close-popup" onclick="closeModal('topup-modal')">&times;</span>
@@ -606,7 +591,6 @@
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        // ডিফল্ট গ্লোবাল ইউজার অবজেক্ট
         let userId = "7593775"; 
         let userName = "Hm Mehedi Hasan";
         let userBalance = 0.00;
@@ -614,7 +598,6 @@
         let activeReferCount = 0;
         let referrerId = null;
 
-        // টেলিগ্রাম ডাটা লোড ও ইনপুট হ্যান্ডলিং
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             userId = tg.initDataUnsafe.user.id.toString();
             userName = tg.initDataUnsafe.user.first_name + (tg.initDataUnsafe.user.last_name ? " " + tg.initDataUnsafe.user.last_name : "");
@@ -628,7 +611,6 @@
         document.getElementById('user-id').innerText = userId;
         document.getElementById('refer-link-box').value = "https://t.me/hm_earnbd_bot/earn?startapp=" + userId;
 
-        // 📊 ডাটাবেজ থেকে লাইভ ইউজার হ্যান্ডলার
         async function loadUserData() {
             try {
                 let { data: user, error } = await supabase
@@ -638,7 +620,6 @@
                     .single();
 
                 if (error && error.code === 'PGRST116') {
-                    // নতুন ইউজার ডাটাবেজে ইনসার্ট ও রেফারেল চেক
                     let { data: newUser, error: insertError } = await supabase
                         .from('users')
                         .insert([{ id: userId, name: userName, balance: 0.00, total_refers: 0, active_refers: 0, referred_by: referrerId }])
@@ -650,7 +631,6 @@
                         referCount = newUser.total_refers;
                         activeReferCount = newUser.active_refers;
 
-                        // রেফারার থাকলে তার টোটাল রেফারেল সাথে সাথে বৃদ্ধি
                         if(referrerId) {
                             await supabase.rpc('increment_total_refers', { row_id: referrerId });
                         }
@@ -704,12 +684,10 @@
             document.getElementById('header-title').innerText = titles[pageId];
         }
 
-        // 🎯 টাস্ক কমপ্লিশন ও রিয়েল-টাইম ব্যালেন্স আপডেট লজিক
         async function runLinkTask(url, buttonId, reward) {
             window.open(url, '_blank');
             let btn = document.getElementById(buttonId);
             
-            // ইনস্ট্যান্টলি লোকাল স্টেট ও ডাটাবেজ আপডেট নিশ্চিত করা
             if(localStorage.getItem(userId + '_' + buttonId) === 'claimed') return;
             
             userBalance += reward;
@@ -722,10 +700,8 @@
             localStorage.setItem(userId + '_' + buttonId, 'claimed');
 
             try {
-                // ডাটাবেজে ব্যালেন্স যোগ
                 await supabase.from('users').update({ balance: userBalance }).eq('id', userId);
                 
-                // ৩টি বা তার বেশি টাস্ক কমপ্লিট হলে রেফারারকে বোনাস প্রদান লজিক
                 let claimedCount = 0;
                 ['task1-btn', 'task2-btn', 'task3-btn', 'task4-btn'].forEach(id => {
                     if(localStorage.getItem(userId + '_' + id) === 'claimed') claimedCount++;
@@ -735,7 +711,6 @@
                     let hasTriggered = localStorage.getItem(userId + '_refer_triggered');
                     if(!hasTriggered) {
                         localStorage.setItem(userId + '_refer_triggered', 'yes');
-                        // ডাটাবেজের মাধ্যমে রেফারারকে টাকা এবং অ্যাক্টিভ কাউন্ট দেওয়া
                         await supabase.rpc('handle_active_referral', { ref_id: referrerId });
                     }
                 }
@@ -831,5 +806,5 @@
 
         loadUserData();
     </script>
-</body>
+    </body>
 </html>
