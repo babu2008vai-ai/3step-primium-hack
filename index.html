@@ -16,6 +16,7 @@ body{
     align-items:center;
 }
 
+/* BOX */
 .box{
     width:340px;
     background:rgba(0,0,0,0.85);
@@ -25,17 +26,13 @@ body{
     text-align:center;
 }
 
-h1{
-    color:#00ff88;
-    font-size:20px;
-}
-
+/* LOGIN */
 input{
     width:100%;
     padding:10px;
-    margin-top:10px;
-    border-radius:6px;
     border:none;
+    border-radius:6px;
+    margin-top:10px;
 }
 
 button{
@@ -54,34 +51,30 @@ button{
 
 #error{color:red;margin-top:5px}
 
+/* DASHBOARD */
 #dashboard{display:none}
 
-/* DISPLAY BOX */
-.display{
+/* TOP BIG SMALL */
+.bs{
+    font-size:28px;
+    font-weight:bold;
     margin-top:10px;
-    padding:15px;
+    color:#00ff88;
+}
+
+/* NUMBER */
+.num{
+    font-size:22px;
+    margin-top:8px;
+    padding:10px;
     border:1px solid #00ff88;
     border-radius:10px;
-    font-size:22px;
 }
 
 /* TIMER */
 .timer{
     margin-top:8px;
     color:yellow;
-}
-
-/* FLOAT BUTTON */
-.float-btn{
-    position:fixed;
-    bottom:20px;
-    right:20px;
-    background:#2196f3;
-    color:white;
-    padding:10px;
-    border-radius:10px;
-    cursor:pointer;
-    user-select:none;
 }
 
 /* HISTORY */
@@ -92,8 +85,21 @@ button{
     background:#111;
     padding:8px;
     border-radius:8px;
-    font-size:12px;
     text-align:left;
+    font-size:13px;
+}
+
+/* FLOAT BUTTON */
+.float{
+    position:fixed;
+    bottom:20px;
+    right:20px;
+    background:#2196f3;
+    color:white;
+    padding:10px;
+    border-radius:10px;
+    cursor:move;
+    user-select:none;
 }
 </style>
 </head>
@@ -102,8 +108,9 @@ button{
 
 <div class="box">
 
+<!-- LOGIN -->
 <div id="loginPage">
-    <h1>MEHEDI VAI AI SYSTEM</h1>
+    <h1 style="color:#00ff88;">MEHEDI VAI AI SYSTEM</h1>
 
     <input type="password" id="password" placeholder="Enter Password">
 
@@ -112,25 +119,28 @@ button{
     <div id="error"></div>
 </div>
 
+<!-- DASHBOARD -->
 <div id="dashboard">
 
-    <h1>MEHEDI VAI AI SYSTEM</h1>
-
     <div class="timer">
-        Timer: <span id="count">30</span>s
+        TIMER: <span id="time">30</span>s
     </div>
 
-    <div class="display" id="output">
-        B / 0
-    </div>
+    <!-- BIG SMALL TOP -->
+    <div class="bs" id="bs">B</div>
 
+    <!-- NUMBER -->
+    <div class="num" id="num">0</div>
+
+    <!-- HISTORY -->
     <div class="history" id="history"></div>
 
 </div>
 
 </div>
 
-<div class="float-btn" onclick="openSite()">
+<!-- FLOAT BUTTON -->
+<div class="float" id="floatBtn" onclick="openSite()">
 OPEN WEBSITE
 </div>
 
@@ -151,52 +161,74 @@ function login(){
         document.getElementById("dashboard").style.display="block";
 
         startSystem();
-
     }else{
         document.getElementById("error").innerText="Wrong Password!";
     }
 }
 
-/* OPEN SITE */
+/* OPEN WEBSITE */
 function openSite(){
     window.open('https://hgnice.bet/#/register?invitationCode=531211974484','_blank');
 }
 
-/* MAIN SYSTEM */
+/* SYSTEM */
 function startSystem(){
-
     setInterval(timer,1000);
     setInterval(generator,2000);
 }
 
-/* TIMER 30 -> 0 */
+/* TIMER */
 function timer(){
 
     time--;
 
-    if(time <= 0){
-        time = 30;
-        locked = false; // unlock after 30 sec
+    if(time<=0){
+        time=30;
+        locked=false;
     }
 
-    document.getElementById("count").innerText = time;
+    document.getElementById("time").innerText=time;
 }
 
-/* BIG SMALL LOGIC */
+/* RANDOM ENGINE */
 function generator(){
 
     let num = Math.floor(Math.random()*10);
 
-    let bs = locked ? "LOCK" : (num >= 5 ? "B" : "S");
+    let bs;
 
-    document.getElementById("output").innerText =
-    bs + " / " + num;
+    if(locked){
+        bs = "B"; // stable mode
+    }else{
+        bs = num >= 5 ? "B" : "S";
+    }
+
+    document.getElementById("bs").innerText = bs;
+    document.getElementById("num").innerText = num;
+
+    // HISTORY ONLY WIN / JACKPOT
+    let result = Math.random() > 0.5 ? "WIN" : "JACKPOT";
 
     let div = document.createElement("div");
-    div.innerText = bs + " / " + num;
+    div.innerText = result;
 
     history.prepend(div);
 }
+
+/* DRAG FLOAT */
+let f = document.getElementById("floatBtn");
+let drag=false;
+
+f.addEventListener("mousedown",()=>drag=true);
+document.addEventListener("mouseup",()=>drag=false);
+
+document.addEventListener("mousemove",(e)=>{
+    if(drag){
+        f.style.left=e.pageX+"px";
+        f.style.top=e.pageY+"px";
+        f.style.position="absolute";
+    }
+});
 
 </script>
 
