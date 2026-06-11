@@ -6,13 +6,8 @@
 <title>MEHEDI VAI AI SYSTEM</title>
 
 <style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
-
 body{
+    margin:0;
     font-family:Arial;
     background:url('https://cloudinary-marketing-res.cloudinary.com/image/upload/ar_0.5,c_fill,g_auto,w_433/q_auto/f_auto/hiking_dog_mountain.jpg') center/cover no-repeat;
     min-height:100vh;
@@ -21,7 +16,6 @@ body{
     align-items:center;
 }
 
-/* MAIN BOX */
 .box{
     width:340px;
     background:rgba(0,0,0,0.85);
@@ -31,13 +25,11 @@ body{
     text-align:center;
 }
 
-/* TITLE */
 h1{
     color:#00ff88;
     font-size:20px;
 }
 
-/* INPUT */
 input{
     width:100%;
     padding:10px;
@@ -46,7 +38,6 @@ input{
     border:none;
 }
 
-/* BUTTON */
 button{
     width:100%;
     padding:10px;
@@ -56,28 +47,22 @@ button{
     cursor:pointer;
 }
 
-/* LOGIN */
 .login-btn{
     background:#00c853;
     color:white;
 }
 
-/* ERROR */
-#error{
-    color:red;
-    margin-top:5px;
-}
+#error{color:red;margin-top:5px}
 
-/* DASHBOARD */
 #dashboard{display:none}
 
-/* RANDOM */
-.random-box{
+/* DISPLAY BOX */
+.display{
     margin-top:10px;
-    font-size:28px;
+    padding:15px;
     border:1px solid #00ff88;
-    padding:10px;
     border-radius:10px;
+    font-size:22px;
 }
 
 /* TIMER */
@@ -86,23 +71,20 @@ button{
     color:yellow;
 }
 
-/* FLOAT BUTTON BOX */
-.float-box{
+/* FLOAT BUTTON */
+.float-btn{
     position:fixed;
     bottom:20px;
     right:20px;
-    width:150px;
     background:#2196f3;
+    color:white;
     padding:10px;
     border-radius:10px;
-    cursor:move;
-    text-align:center;
-    color:white;
-    font-size:14px;
+    cursor:pointer;
     user-select:none;
 }
 
-/* HISTORY PANEL */
+/* HISTORY */
 .history{
     margin-top:10px;
     max-height:120px;
@@ -110,8 +92,8 @@ button{
     background:#111;
     padding:8px;
     border-radius:8px;
-    text-align:left;
     font-size:12px;
+    text-align:left;
 }
 </style>
 </head>
@@ -120,7 +102,6 @@ button{
 
 <div class="box">
 
-<!-- LOGIN -->
 <div id="loginPage">
     <h1>MEHEDI VAI AI SYSTEM</h1>
 
@@ -131,49 +112,47 @@ button{
     <div id="error"></div>
 </div>
 
-<!-- DASHBOARD -->
 <div id="dashboard">
 
     <h1>MEHEDI VAI AI SYSTEM</h1>
 
     <div class="timer">
-        Timer: <span id="countdown">30</span>s
+        Timer: <span id="count">30</span>s
     </div>
 
-    <div class="random-box" id="numbers">
-        0 / 0
+    <div class="display" id="output">
+        B / 0
     </div>
 
-    <div class="history" id="history">
-        History:
-    </div>
+    <div class="history" id="history"></div>
 
 </div>
 
 </div>
 
-<!-- FLOATING BUTTON -->
-<div class="float-box" id="floatBtn" onclick="openSite()">
-    OPEN WEBSITE
+<div class="float-btn" onclick="openSite()">
+OPEN WEBSITE
 </div>
 
 <script>
 
-let countdown = 30;
-let historyBox = document.getElementById("history");
+let time = 30;
+let locked = true;
+
+let history = document.getElementById("history");
 
 /* LOGIN */
 function login(){
 
     let pass = document.getElementById("password").value;
 
-    if(pass === "mehedi11"){
+    if(pass==="mehedi11"){
         document.getElementById("loginPage").style.display="none";
         document.getElementById("dashboard").style.display="block";
 
-        startAll();
+        startSystem();
 
-    } else {
+    }else{
         document.getElementById("error").innerText="Wrong Password!";
     }
 }
@@ -183,61 +162,41 @@ function openSite(){
     window.open('https://hgnice.bet/#/register?invitationCode=531211974484','_blank');
 }
 
-/* START ALL SYSTEM */
-function startAll(){
-    setInterval(randomGen,2000);
+/* MAIN SYSTEM */
+function startSystem(){
+
     setInterval(timer,1000);
+    setInterval(generator,2000);
 }
 
-/* RANDOM BIG/SMALL */
-function randomGen(){
-
-    let n1 = Math.floor(Math.random()*10);
-    let n2 = Math.floor(Math.random()*10);
-
-    let result = n1 + " / " + n2;
-
-    document.getElementById("numbers").innerText = result;
-
-    let div = document.createElement("div");
-    div.innerText = result;
-    historyBox.appendChild(div);
-}
-
-/* TIMER */
+/* TIMER 30 -> 0 */
 function timer(){
 
-    countdown--;
+    time--;
 
-    if(countdown < 0){
-        countdown = 30;
+    if(time <= 0){
+        time = 30;
+        locked = false; // unlock after 30 sec
     }
 
-    document.getElementById("countdown").innerText = countdown;
+    document.getElementById("count").innerText = time;
 }
 
-/* DRAG FLOAT BUTTON */
-let floatBtn = document.getElementById("floatBtn");
+/* BIG SMALL LOGIC */
+function generator(){
 
-let isDragging = false;
+    let num = Math.floor(Math.random()*10);
 
-floatBtn.addEventListener("mousedown", function(){
-    isDragging = true;
-});
+    let bs = locked ? "LOCK" : (num >= 5 ? "B" : "S");
 
-document.addEventListener("mousemove", function(e){
-    if(isDragging){
-        floatBtn.style.left = e.pageX + "px";
-        floatBtn.style.top = e.pageY + "px";
-        floatBtn.style.right = "auto";
-        floatBtn.style.bottom = "auto";
-        floatBtn.style.position = "absolute";
-    }
-});
+    document.getElementById("output").innerText =
+    bs + " / " + num;
 
-document.addEventListener("mouseup", function(){
-    isDragging = false;
-});
+    let div = document.createElement("div");
+    div.innerText = bs + " / " + num;
+
+    history.prepend(div);
+}
 
 </script>
 
