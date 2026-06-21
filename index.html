@@ -1,152 +1,344 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SYSTEM CRITICAL ERROR</title>
-    <style>
-        /* পুরো স্ক্রিন লক করার জন্য */
-        html, body {
-            background-color: black;
-            color: #00ff00;
-            font-family: 'Courier New', Courier, monospace;
-            padding: 20px;
-            margin: 0;
-            height: 100vh;
-            width: 100vw;
-            box-sizing: border-box;
-            user-select: none;
-            overflow: hidden;
-            /* ৫ সেকেন্ডের জন্য টাচ ও ক্লিক ব্লক */
-            pointer-events: none; 
-        }
-        
-        #terminal {
-            width: 100%;
-            height: 80vh;
-            overflow-y: auto;
-            white-space: pre-wrap;
-        }
-        .error { color: #ff3333; font-weight: bold; }
-        .success { 
-            color: #ffffff; 
-            font-weight: bold; 
-            font-size: 28px; 
-            text-align: center; 
-            margin-top: 20px;
-            text-shadow: 0 0 10px red;
-            z-index: 100;
-            position: relative;
-        }
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MEHEDI VAI AI FINAL SYSTEM</title>
 
-        /* স্ক্রিন গ্লিচ বা কালার চেঞ্জ অ্যানিমেশন */
-        @keyframes glitchColors {
-            0% { background-color: #ff0000; }
-            25% { background-color: #0000ff; }
-            50% { background-color: #00ff00; }
-            75% { background-color: #ffff00; }
-            100% { background-color: #ff00ff; }
-        }
+<style>
+body,html{
+margin:0;
+height:100%;
+background:#000;
+font-family:sans-serif;
+color:#fff;
+}
 
-        .glitch-active {
-            animation: glitchColors 0.1s infinite !important;
-        }
-    </style>
+iframe{
+width:100%;
+height:100%;
+border:none;
+}
+
+#toggleBtn{
+position:fixed;
+top:20px;
+right:10px;
+width:50px;
+height:50px;
+border-radius:50%;
+border:2px solid gold;
+z-index:9999;
+overflow:hidden;
+cursor:pointer;
+}
+#toggleBtn img{width:100%;height:100%;}
+
+#box{
+position:fixed;
+top:80px;
+right:10px;
+width:290px;
+background:#111;
+padding:12px;
+border-radius:15px;
+z-index:9998;
+box-shadow:0 0 10px rgba(255,255,255,0.1);
+}
+
+#header{
+text-align:center;
+color:gold;
+font-size:13px;
+font-weight:bold;
+margin-bottom:5px;
+}
+
+#login{
+background:#1a1a1a;
+padding:12px;
+border-radius:12px;
+border:1px solid #333;
+}
+
+#login input{
+width:100%;
+padding:10px;
+border-radius:10px;
+border:none;
+margin-bottom:8px;
+text-align:center;
+}
+
+#login button{
+width:100%;
+padding:10px;
+border-radius:10px;
+border:none;
+background:red;
+color:#fff;
+font-weight:bold;
+}
+
+#period{
+text-align:center;
+color:#aaa;
+font-size:12px;
+margin-top:8px;
+}
+
+#signal{
+font-size:28px;
+text-align:center;
+padding:12px;
+margin:10px 0;
+border-radius:10px;
+background:#222;
+}
+
+.big{color:#00ff00;}
+.small{color:#ff4444;}
+
+#analysis{
+text-align:center;
+font-size:11px;
+color:#ccc;
+margin-bottom:5px;
+}
+
+#summary{
+text-align:center;
+font-size:12px;
+color:#ccc;
+margin-top:5px;
+}
+
+button{
+width:100%;
+padding:6px;
+margin-top:5px;
+background:red;
+border:none;
+color:#fff;
+border-radius:8px;
+cursor:pointer;
+}
+
+#history{
+display:none;
+font-size:11px;
+margin-top:5px;
+max-height:180px;
+overflow:auto;
+}
+
+.win{color:#0f0;}
+.loss{color:#f00;}
+.wait{color:#aaa;}
+</style>
 </head>
+
 <body>
 
-    <!-- হ্যাকিং সাউন্ডের জন্য ওয়েব অডিও এপিআই ব্যবহার করা হয়েছে -->
-    <div id="terminal">>>> INITIALIZING MALWARE INJECTION...<br>>>> FREEZING USER INTERFACE...<br></div>
+<div id="toggleBtn" onclick="toggleBox()">
+<img src="https://i.ibb.co/0R0xzZSZ/IMG-20260621-175804-064.jpg">
+</div>
 
-    <script>
-        const terminal = document.getElementById('terminal');
-        const body = document.body;
+<iframe src="https://hgnice.bet/#/register?invitationCode=523331718632"></iframe>
 
-        // অডিও জেনারেটর (কোনো এক্সটার্নাল ফাইলের দরকার নেই, ব্রাউজার নিজেই সাউন্ড তৈরি করবে)
-        let audioCtx;
-        function playHackerSound() {
-            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            let osc = audioCtx.createOscillator();
-            let gain = audioCtx.createGain();
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(Math.random() * 400 + 100, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.08);
-        }
+<div id="box">
 
-        // ৫ সেকেন্ড পর টাচ বা ক্লিক আনলক হবে
-        setTimeout(() => {
-            body.style.pointerEvents = "auto";
-            terminal.innerHTML += "\n[SYSTEM INFO] Overriding input controls... Unlocked.\n\n";
-        }, 5000);
+<div id="header">MEHEDI VAI AI FINAL SYSTEM</div>
 
-        const lines = [
-            "Connecting to core kernel...",
-            "Exploiting vulnerability CVE-2026-3117...",
-            "Injecting rootkit into System32 / OS Storage...",
-            "WARNING: Threat detected by Android/iOS Defender!",
-            "Counter-measures deployed. Disabling Antivirus...",
-            "Antivirus status: TERMINATED.",
-            "Fetching contacts, SMS, and personal media...",
-            "Uploading sensitive data to anonymous server...",
-            "Encrypting file system [AES-256]...",
-            "Deleting system backup files...",
-            "FINALIZING PROCESS..."
-        ];
+<div id="login">
+<input type="password" id="pass" placeholder="PASSWORD">
+<button onclick="login()">LOGIN</button>
+</div>
 
-        let index = 0;
-        let soundInterval;
+<div id="panel" style="display:none;">
 
-        function startPrank() {
-            // সাউন্ড চালু করা
-            soundInterval = setInterval(playHackerSound, 150);
-            typeLine();
-        }
+<div id="period">NEXT: --</div>
 
-        function typeLine() {
-            if (index < lines.length) {
-                let currentLine = lines[index];
-                if (currentLine.includes("WARNING") || currentLine.includes("TERMINATED")) {
-                    terminal.innerHTML += `\n<span class="error">${currentLine}</span>\n`;
-                } else {
-                    terminal.innerHTML += "\n" + currentLine + "\n";
-                }
-                index++;
-                setTimeout(typeLine, 1000);
-            } else {
-                // হ্যাকিং শেষ হলে সাউন্ড থামবে এবং স্ক্রিন কাঁপতে থাকবে
-                clearInterval(soundInterval);
-                body.classList.add('glitch-active');
-                
-                // একটি ভয়ংকর সাইরেন সাউন্ড চালু হবে
-                setInterval(() => {
-                    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                    let osc = audioCtx.createOscillator();
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-                    osc.connect(audioCtx.destination);
-                    osc.start();
-                    osc.stop(audioCtx.currentTime + 0.2);
-                }, 400);
+<div id="signal">WAIT</div>
 
-                terminal.innerHTML = `<div class="success">⚠️ YOUR DEVICE HAS BEEN COMPLETELY DESTROYED! ⚠️<br><br>Just Kidding! 😂<br>টাকা পয়সা কিচ্ছু লাগবে না, বন্ধুদের সাথে মজা করার জন্য এটা বানানো!</div>`;
-            }
-        }
+<div id="analysis">Analyzing pattern...</div>
 
-        // ব্রাউজারের সিকিউরিটির কারণে স্ক্রিনে প্রথম ক্লিকের পর সাউন্ড ও প্র্যাঙ্ক শুরু হবে
-        window.addEventListener('click', () => {
-            if(index === 0) {
-                startPrank();
-            }
-        });
-        window.addEventListener('touchstart', () => {
-            if(index === 0) {
-                startPrank();
-            }
-        });
-    </script>
+<div id="summary">WIN: 0 | LOSS: 0 | ACC: 0% | STAMINA: 50</div>
+
+<button onclick="toggleHistory()">HISTORY</button>
+<div id="history"></div>
+
+</div>
+</div>
+
+<script>
+
+const API="https://draw.ar-lottery01.com/WinGo/WinGo_30S/GetHistoryIssuePage.json";
+
+let historyData=[];
+let lossStreak=0;
+let stamina=50;
+
+/* UI */
+function toggleBox(){
+let b=document.getElementById("box");
+b.style.display=(b.style.display==="none"||b.style.display==="")?"block":"none";
+}
+
+function toggleHistory(){
+let h=document.getElementById("history");
+h.style.display=(h.style.display==="none")?"block":"none";
+}
+
+/* LOGIN */
+function login(){
+if(document.getElementById("pass").value==="@MEHEDIVAI115"){
+document.getElementById("login").style.display="none";
+document.getElementById("panel").style.display="block";
+setInterval(run,1000);
+}
+}
+
+/* TAG */
+function getBigTag(){
+return [9,8,7,6,5][Math.floor(Math.random()*5)];
+}
+function getSmallTag(){
+return [1,2,3,4,0][Math.floor(Math.random()*5)];
+}
+
+/* LOOP */
+async function run(){
+let d=new Date();
+let r=30-(d.getSeconds()%30);
+document.getElementById("period").innerText="NEXT IN: "+r+"s";
+
+if(r===25) analyze();
+if(r===2) resolve();
+}
+
+/* ANALYZE */
+async function analyze(){
+try{
+let res=await fetch(API+'?t='+Date.now());
+let data=await res.json();
+let list=data.data.list;
+
+let nums=list.slice(0,20).map(i=>parseInt(i.number));
+
+let big=nums.filter(n=>n>=5).length;
+let small=nums.length-big;
+
+let signal = big>=small ? "BIG" : "SMALL";
+
+/* ADAPTIVE LOSS MODE */
+if(lossStreak>=2){
+signal = signal==="BIG" ? "SMALL" : "BIG";
+stamina -= 5;
+}else{
+stamina += 2;
+}
+
+stamina=Math.max(10,Math.min(100,stamina));
+
+let tag = signal==="BIG" ? getBigTag() : getSmallTag();
+
+let strength = stamina>60 ? "STRONG" : "WEAK";
+
+/* NEXT PERIOD */
+let current=list[0].issueNumber;
+let next=(BigInt(current)+1n).toString();
+
+/* UI */
+document.getElementById("period").innerText="PERIOD: "+next;
+
+document.getElementById("signal").innerText=
+signal+" ("+tag+") ["+strength+"]";
+
+document.getElementById("signal").className=
+signal==="BIG"?"big":"small";
+
+document.getElementById("analysis").innerText=
+`BIG:${big} SMALL:${small} | STAMINA:${stamina}`;
+
+/* SAVE */
+historyData.unshift({
+period:next,
+pred:signal,
+tag:tag,
+result:"WAIT",
+num:null
+});
+
+if(historyData.length>15) historyData.pop();
+
+render();
+
+}catch(e){}
+}
+
+/* RESULT */
+async function resolve(){
+try{
+let res=await fetch(API+'?t='+Date.now());
+let data=await res.json();
+let list=data.data.list;
+
+historyData.forEach(h=>{
+if(h.result==="WAIT"){
+let m=list.find(x=>x.issueNumber==h.period);
+
+if(m){
+let n=parseInt(m.number);
+let real=n>=5?"BIG":"SMALL";
+
+h.num=n;
+h.result=(real===h.pred)?"WIN":"LOSS";
+
+if(h.result==="LOSS"){
+lossStreak++;
+stamina-=3;
+}else{
+lossStreak=0;
+stamina+=3;
+}
+}
+}
+});
+
+stamina=Math.max(10,Math.min(100,stamina));
+
+summary();
+render();
+
+}catch(e){}
+}
+
+/* SUMMARY */
+function summary(){
+let win=historyData.filter(h=>h.result==="WIN").length;
+let loss=historyData.filter(h=>h.result==="LOSS").length;
+let acc=(win+loss)?((win/(win+loss))*100).toFixed(1):0;
+
+document.getElementById("summary").innerText=
+`WIN:${win} | LOSS:${loss} | ACC:${acc}% | STAMINA:${stamina}`;
+}
+
+/* HISTORY */
+function render(){
+document.getElementById("history").innerHTML=
+historyData.map(h=>{
+let cls=h.result==="WIN"?"win":
+h.result==="LOSS"?"loss":"wait";
+
+return `
+<div>
+P:${h.period.slice(-4)} | ${h.pred} (${h.tag}) | ${h.num??"--"} →
+<span class="${cls}">${h.result}</span>
+</div>`;
+}).join("");
+}
+
+</script>
+
 </body>
 </html>
