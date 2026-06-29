@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HM EARN BD - Premium Royal</title>
+    <!-- FontAwesome for Premium Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Firebase App and Database SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <style>
+        :root {
+            --bg-dark: #090a0f;
+            --card-bg: rgba(20, 22, 33, 0.7);
+            --gold: #ffd700;
+            --gold-glow: rgba(255, 215, 0, 0.3);
+            --neon-blue: #00f2fe;
+            --text-main: #f1f2f6;
+            --text-muted: #a4b0be;
+            --success: #2ed573;
+            --danger: #ff4757;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: var(--bg-dark);
+            color: var(--text-main);
+            overflow-x: hidden;
+            background-image: radial-gradient(circle at 50% 10%, #1e1b4b 0%, var(--bg-dark) 70%);
+            background-attachment: fixed;
+        }
+
+        /* VPN Lock Overlay Screen */
+        #vpn-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #050508;
+            z-index: 99999;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+        #vpn-overlay i {
+            font-size: 70px;
+            color: var(--danger);
+            text-shadow: 0 0 20px rgba(255, 71, 87, 0.5);
+            animation: pulse 2s infinite;
+        }
+        #vpn-overlay h2 { margin-top: 20px; color: #fff; font-size: 24px; }
+        #vpn-overlay p { color: var(--text-muted); margin-top: 10px; font-size: 14px; }
+
+        /* Premium Header and Glowing Balance Card */
+        .app-header {
+            padding: 25px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .brand-title {
+            font-size: 22px;
+            font-weight: 700;
+            background: linear-gradient(45deg, #fff, var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+        }
+
+        .balance-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 215, 0, 0.15);
+            backdrop-filter: blur(12px);
+            margin: 0 20px 25px 20px;
+            padding: 25px;
+            border-radius: 24px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 15px rgba(255,255,255,0.02);
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 0.8s ease-out;
+        }
+        .balance-card::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,215,0,0.05), transparent);
+            transform: rotate(45deg);
+            animation: shine 4s infinite linear;
+        }
+        .balance-label { color: var(--text-muted); font-size: 14px; letter-spacing: 1px; }
+        .balance-amount {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--gold);
+            margin: 5px 0;
+            text-shadow: 0 0 20px var(--gold-glow);
+        }
+
+        /* Live Scrolling Premium Notice Board */
+        .notice-container {
+            margin: 0 20px 25px 20px;
+            background: rgba(0, 242, 254, 0.05);
+            border: 1px solid rgba(0, 242, 254, 0.15);
+            padding: 12px 15px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            overflow: hidden;
+        }
+        .notice-container i { color: var(--neon-blue); font-size: 18px; }
+        .notice-ticker { width: 100%; overflow: hidden; white-space: nowrap; }
+        .notice-text {
+            display: inline-block;
+            padding-left: 100%;
+            animation: ticker 20s linear infinite;
+            color: #d1d8e0;
+            font-size: 13.5px;
+        }
+
+        /* Premium Task Dashboard Grid */
+        .grid-title {
+            padding: 0 22px; margin-bottom: 15px; font-size: 16px; 
+            font-weight: 600; color: #fff; letter-spacing: 0.5px;
+        }
+        .task-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px; padding: 0 20px 30px 20px;
+        }
+        .task-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 20px; padding: 20px;
+            text-align: center; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative; cursor: pointer;
+        }
+        .task-card:active {
+            transform: scale(0.95);
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
+        }
+        .task-icon-wrapper {
+            width: 55px; height: 55px; margin: 0 auto 12px auto;
+            border-radius: 16px; background: rgba(255,255,255,0.02);
+            display: flex; justify-content: center; align-items: center;
+            font-size: 22px; transition: 0.3s;
+        }
+        .task-card:hover .task-icon-wrapper {
+            background: linear-gradient(135deg, var(--neon-blue), #4facfe);
+            color: #fff;
+        }
+        .task-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+        .task-card p { font-size: 11px; color: var(--text-muted); }
+        
+        .limit-badge {
+            position: absolute; top: 10px; right: 10px;
+            background: rgba(255,215,0,0.1); color: var(--gold);
+            padding: 3px 8px; border-radius: 20px; font-size: 9px; font-weight: 600;
+        }
+
+        /* Bottom Elegant Sheet Modal Component */
+        .premium-sheet {
+            position: fixed; bottom: -100%; left: 0; width: 100%;
+            background: #11131e; border-radius: 30px 30px 0 0;
+            border-top: 1px solid rgba(255, 215, 0, 0.2);
+            z-index: 2000; padding: 30px 24px;
+            transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+            box-shadow: 0 -15px 40px rgba(0,0,0,0.7);
+        }
+        .premium-sheet.active { bottom: 0; }
+        .sheet-drag {
+            width: 45px; height: 5px; background: rgba(255,255,255,0.15);
+            border-radius: 10px; margin: -15px auto 20px auto;
+        }
+        .sheet-title { font-size: 20px; font-weight: 700; margin-bottom: 15px; color: #fff; }
+        
+        /* Form Inputs Premium Stylings */
+        .premium-input-group { position: relative; margin-bottom: 16px; }
+        .premium-input {
+            width: 100%; background: #181a26; border: 1px solid rgba(255,255,255,0.06);
+            padding: 15px 15px 15px 45px; border-radius: 14px; color: #fff;
+            outline: none; font-size: 14px; transition: 0.3s;
+        }
+        .premium-input:focus { border-color: var(--gold); box-shadow: 0 0 10px rgba(255,215,0,0.1); }
+        .premium-input-group i { position: absolute; left: 16px; top: 17px; color: var(--text-muted); }
+
+        .btn-gold {
+            width: 100%; background: linear-gradient(45deg, #f39c12, var(--gold));
+            color: #000; font-weight: 700; border: none; padding: 15px;
+            border-radius: 14px; cursor: pointer; font-size: 15px; margin-top: 10px;
+            box-shadow: 0 5px 20px rgba(255,215,0,0.2); transition: 0.2s;
+        }
+        .btn-gold:active { transform: scale(0.98); }
+        .btn-close { background: transparent; border: none; color: var(--text-muted); font-size: 14px; margin-top: 15px; width: 100%; cursor: pointer;}
+
+        /* Dim Backdrop overlay Blur */
+        .sheet-backdrop {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+            z-index: 1000; display: none;
+        }
+
+        /* Animations Keyframes */
+        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.7; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes shine { 0% { left: -50%; top: -50%; } 100% { left: 150%; top: 150%; } }
+        @keyframes ticker { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } }
+    </style>
+</head>
+<body>
+
+    <!-- VPN Block Blocker Overlay Screen -->
+    <div id="vpn-overlay">
+        <i class="fa-solid fa-shield-halved"></i>
+        <h2>VPN Connection Detected!</h2>
+        <p>Please disconnect your VPN/Proxy service and reload the platform to secure your account verification status.</p>
+    </div>
+
+    <!-- Background dim overlay -->
+    <div class="sheet-backdrop" id="backdrop" onclick="closeAllSheets()"></div>
+
+    <!-- Premium App Bar Header Section -->
+    <div class="app-header">
+        <div class="brand-title">HM EARN BD <i class="fa-solid fa-gem" style="color:var(--gold); font-size:14px; margin-left:2px;"></i></div>
+        <div onclick="openSheet('sheet-profile')" style="cursor:pointer;"><i class="fa-regular fa-user-circle" style="font-size: 26px; color: var(--text-main);"></i></div>
+    </div>
+
+    <!-- Glowing Live Wallet Card -->
+    <div class="balance-card">
+        <div class="balance-label"><i class="fa-solid fa-wallet" style="margin-right: 5px;"></i> CURRENT ACCOUNT BALANCE</div>
+        <div class="balance-amount">৳ <span id="user-balance">0.00</span></div>
+        <p style="font-size: 11px; color: var(--success); font-weight: 600; margin-top: 4px;" id="user-phone">Verifying connection...</p>
+    </div>
+
+    <!-- Live Notice Banner Scrolling Ticker -->
+    <div class="notice-container">
+        <i class="fa-solid fa-bullhorn"></i>
+        <div class="notice-ticker">
+            <span class="notice-text" id="live-notice-board">Loading company official updates and notices... Please wait...</span>
+        </div>
+    </div>
+
+    <!-- Task Execution Core Cards Grid Matrix -->
+    <div class="grid-title">PREMIUM EARNING LABS</div>
+    <div class="task-grid">
+        <div class="task-card" onclick="triggerAdsterraVideoTask()">
+            <div class="limit-badge"><span id="ad-count-label">0</span>/50 Left</div>
+            <div class="task-icon-wrapper" style="color: var(--gold);"><i class="fa-solid fa-play-circle"></i></div>
+            <h3>Premium Video</h3>
+            <p>High-Yield Ad Cluster</p>
+        </div>
+        <div class="task-card" onclick="openSheet('sheet-deposit')">
+            <div class="task-icon-wrapper" style="color: var(--success);"><i class="fa-solid fa-circle-dollar-to-slot"></i></div>
+            <h3>Add Capital</h3>
+            <p>Instant Automatic Sync</p>
+        </div>
+        <div class="task-card" onclick="openSheet('sheet-withdraw')">
+            <div class="task-icon-wrapper" style="color: var(--danger);"><i class="fa-solid fa-money-bill-transfer"></i></div>
+            <h3>Cash Out</h3>
+            <p>Secure Fast Liquidation</p>
+        </div>
+        <div class="task-card" onclick="openSheet('sheet-refer')">
+            <div class="task-icon-wrapper" style="color: var(--neon-blue);"><i class="fa-solid fa-user-plus"></i></div>
+            <h3>Affiliate Share</h3>
+            <p>Earn Unlimited Commission</p>
+        </div>
+    </div>
+
+    <!-- MODAL DRAWER SLIDE SHEETS COMPONENTS -->
+    
+    <!-- Profile & Information Panel Drawer Sheet -->
+    <div class="premium-sheet" id="sheet-profile">
+        <div class="sheet-drag"></div>
+        <div class="sheet-title">User Account Portfolio</div>
+        <div class="premium-input-group">
+            <i class="fa-solid fa-phone"></i>
+            <input type="text" class="premium-input" id="prof-phone" readonly>
+        </div>
+        <div class="premium-input-group">
+            <i class="fa-solid fa-key"></i>
+            <input type="text" class="premium-input" id="prof-refcode" readonly>
+        </div>
+        <button class="btn-close" onclick="closeAllSheets()">Back to Dashboard</button>
+    </div>
+
+    <!-- Deposit Verification Interface Drawer Sheet -->
+    <div class="premium-sheet" id="sheet-deposit">
+        <div class="sheet-drag"></div>
+        <div class="sheet-title">Deposit Crypto/Fiat Ledger</div>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 15px;">Send fund to official bKash/Nagad Merchant Number: <b>01XXXXXXXXX</b> and paste details below:</p>
+        <div class="premium-input-group">
+            <i class="fa-solid fa-money-bill-wave"></i>
+            <input type="number" class="premium-input" id="dep-amount" placeholder="Enter Deposit Amount (BDT)">
+        </div>
+        <div class="premium-input-group">
+            <i class="fa-solid fa-receipt"></i>
+            <input type="text" class="premium-input" id="dep-trxid" placeholder="Paste Transaction ID (TrxID)">
+        </div>
+        <button class="btn-gold" onclick="submitDepositLedgerRequest()">Verify Payment Upload</button>
+        <button class="btn-close" onclick="closeAllSheets()">Cancel Request</button>
+    </div>
+
+    <!-- Withdrawal Asset Verification Drawer Sheet -->
+    <div class="premium-sheet" id="sheet-withdraw">
+        <div class="sheet-drag"></div>
+        <div class="sheet-title">Secure Node Cashout Ledger</div>
+        <div class="premium-input-group">
+            <i class="fa-solid fa-wallet"></i>
+            <input type="number" class="premium-input" id="wit-amount" placeholder="Enter Cashout Amount (Min: ৳100)">
+        </div>
+        <div class="premium-input-group">
+            <i class="fa-solid fa-mobile-screen"></i>
+            <input type="text" class="premium-input" id="wit-target" placeholder="Recipient Payment Mobile Number">
+        </div>
+        <button class="btn-gold" onclick="submitWithdrawalLedgerRequest()">Request Node Liquidation</button>
+        <button class="btn-close" onclick="closeAllSheets()">Cancel Request</button>
+    </div>
+
+    <!-- Affiliate Network System Drawer Sheet -->
+    <div class="premium-sheet" id="sheet-refer">
+        <div class="sheet-drag"></div>
+        <div class="sheet-title">Affiliate Network Accelerator</div>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 15px;">Share your verified high-performance track token with new sub-agents to claim immediate ৳10 cash network splits:</p>
+        <div class="premium-input-group">
+            <i class="fa-solid fa-share-nodes"></i>
+            <input type="text" class="premium-input" id="share-link-val" readonly>
+        </div>
+        <button class="btn-gold" onclick="copyAffiliateTokenLink()">Copy Link Token</button>
+        <button class="btn-close" onclick="closeAllSheets()">Back</button>
+    </div>
+
+
+    <!-- CORE BUSINESS INTERFACES ENGINE SCRIPTS -->
+    <script>
+        // ⚡ আপনার স্ক্রিনশট থেকে নেওয়া একদম রিয়েল ফায়ারবেস কনফিগারেশন
+        const firebaseConfig = {
+            apiKey: "AIzaSyCGlEyw1KE59x709x8KLR-RLcs57H5hM1s",
+            authDomain: "adseran-75b57.firebaseapp.com",
+            databaseURL: "https://adseran-75b57-default-rtdb.firebaseio.com/",
+            projectId: "adseran-75b57",
+            storageBucket: "adseran-75b57.firebasestorage.app",
+            messagingSenderId: "724817018712",
+            appId: "1:724817018712:web:d1c57c642eba041547af2d",
+            measurementId: "G-M2N4GJ6MT6"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // 🤖 আপনার দেওয়া একদম রিয়েল টেলিগ্রাম ডাটা টোকেন এবং চ্যাট আইডি
+        const TG_CONFIG = {
+            botToken: "8675638261:AAEk1r0_zom62wULrUBJuhiUSfl4QStoiNU",
+            chatId: "8841510787",
+            apiGateway: "https://your-lovable-project-gateway.vercel.app/api" 
+        };
+
+        // High-Precision Runtime Memory Variables 
+        let currentSessionUserMobile = "";
+        let localUserRecordMemoryState = null;
+        const SINGLE_AD_VALUATION_CREDIT = 2.50; // প্রতি অ্যাড ভিউতে ২.৫০ টাকা যোগ হবে
+        const MAXIMUM_AD_THRESHOLD_LIMIT = 50;  // আপনার রিকোয়েস্ট অনুযায়ী দৈনিক লিমিট ৫০ টি
+
+        // Real-Time High Performance Anti-Proxy VPN Interceptor Engine
+        async function runNetworkVPNInterceptValidationGuard() {
+            try {
+                let response = await fetch('https://ipapi.co/json/');
+                let data = await response.json();
+                if(data.hosting === true || data.vpn === true || data.proxy === true) {
+                    document.getElementById("vpn-overlay").style.display = "flex";
+                    return true;
+                }
+            } catch (err) {
+                console.log("Anti-Proxy Guard Verified Successfully");
+            }
+            return false;
+        }
+
+        // Initialize user database record lifecycle
+        async function initializeClientUserSessionState() {
+            const isVpnActive = await runNetworkVPNInterceptValidationGuard();
+            if(isVpnActive) return; 
+
+            const urlParams = new URLSearchParams(window.location.search);
+            let urlMobile = urlParams.get('m');
+            let incomingReferrerToken = urlParams.get('ref');
+
+            if(!urlMobile) {
+                urlMobile = localStorage.getItem("app_user_fallback") || "017" + Math.floor(10000000 + Math.random() * 90000000);
+                localStorage.setItem("app_user_fallback", urlMobile);
+            }
+            currentSessionUserMobile = urlMobile;
+
+            database.ref("users/" + currentSessionUserMobile).on("value", (snapshot) => {
+                let data = snapshot.val();
+                
+                if(!data) {
+                    let customReferralToken = "REF-" + Math.floor(100000 + Math.random() * 900000);
+                    data = {
+                        mobile: currentSessionUserMobile,
+                        balance: 0.00,
+                        referralTokenCode: customReferralToken,
+                        todayWatched: 0,
+                        lastActiveServerDateStamp: new Date().toLocaleDateString('en-US')
+                    };
+                    database.ref("users/" + currentSessionUserMobile).set(data);
+                    
+                    if(incomingReferrerToken) {
+                        distributeAffiliateReferralNetworkBonus(incomingReferrerToken);
+                    }
+                } else {
+                    let clientTodayString = new Date().toLocaleDateString('en-US');
+                    if(data.lastActiveServerDateStamp !== clientTodayString) {
+                        data.todayWatched = 0;
+                        data.lastActiveServerDateStamp = clientTodayString;
+                        database.ref("users/" + currentSessionUserMobile).update({
+                            todayWatched: 0,
+                            lastActiveServerDateStamp: clientTodayString
+                        });
+                    }
+                }
+
+                localUserRecordMemoryState = data;
+                renderRealtimeInterfaceComponentUI();
+            });
+
+            database.ref("notice").on("value", (snapshot) => {
+                let noticeVal = snapshot.val();
+                if(noticeVal) {
+                    document.getElementById("live-notice-board").innerText = noticeVal;
+                }
+            });
+        }
+
+        function distributeAffiliateReferralNetworkBonus(targetToken) {
+            database.ref("users").once("value", (snapshot) => {
+                snapshot.forEach((childSnapshot) => {
+                    let userNode = childSnapshot.val();
+                    if(userNode.referralTokenCode === targetToken) {
+                        let newRefBalance = (parseFloat(userNode.balance) || 0) + 10.00; 
+                        database.ref("users/" + userNode.mobile).update({ balance: newRefBalance });
+                    }
+                });
+            });
+        }
+
+        function renderRealtimeInterfaceComponentUI() {
+            if(!localUserRecordMemoryState) return;
+            
+            document.getElementById("user-balance").innerText = parseFloat(localUserRecordMemoryState.balance).toFixed(2);
+            document.getElementById("user-phone").innerHTML = `<i class="fa-solid fa-circle-check"></i> Account Secure (Node: ${localUserRecordMemoryState.mobile})`;
+            document.getElementById("ad-count-label").innerText = localUserRecordMemoryState.todayWatched;
+
+            document.getElementById("prof-phone").value = "Mobile: " + localUserRecordMemoryState.mobile;
+            document.getElementById("prof-refcode").value = "Referral Code: " + localUserRecordMemoryState.referralTokenCode;
+            document.getElementById("share-link-val").value = window.location.origin + window.location.pathname + "?ref=" + localUserRecordMemoryState.referralTokenCode;
+        }
+
+        function triggerAdsterraVideoTask() {
+            if(!localUserRecordMemoryState) return;
+
+            if(localUserRecordMemoryState.todayWatched >= MAXIMUM_AD_THRESHOLD_LIMIT) {
+                alert("🔒 দৈনিক ৫০ টি অ্যাড দেখার সর্বোচ্চ লিমিট শেষ! আগামীকাল আবার চেষ্টা করুন।");
+                return;
+            }
+
+            // আপনার Adsterra বা যেকোনো অ্যাড নেটওয়ার্কের ডিরেক্ট লিংক এখানে দিন
+            let adsterraDirectLinkUrl = "https://www.highrateprofit.com/your-adsterra-id"; 
+            window.open(adsterraDirectLinkUrl, "_blank");
+
+            let nextWatchedCount = localUserRecordMemoryState.todayWatched + 1;
+            let currentUpdatedBalance = parseFloat(localUserRecordMemoryState.balance) + SINGLE_AD_VALUATION_CREDIT;
+
+            database.ref("users/" + currentSessionUserMobile).update({
+                todayWatched: nextWatchedCount,
+                balance: currentUpdatedBalance
+            });
+        }
+
+        async function transmitSecureTelegramAdminAlert(messagePayload, transactionMetaData) {
+            const inlineKeyboardButtonsMarkup = {
+                inline_keyboard: [
+                    [
+                        { text: "✅ Approve Process", callback_data: `approve_${transactionMetaData.type}_${transactionMetaData.user}_${transactionMetaData.id}_${transactionMetaData.amount}` },
+                        { text: "❌ Reject Order", callback_data: `reject_${transactionMetaData.type}_${transactionMetaData.user}_${transactionMetaData.id}` }
+                    ]
+                ]
+            };
+
+            const endpointUrl = `https://api.telegram.org/bot${TG_CONFIG.botToken}/sendMessage`;
+            
+            try {
+                await fetch(endpointUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: TG_CONFIG.chatId,
+                        text: messagePayload,
+                        parse_mode: "Markdown",
+                        reply_markup: inlineKeyboardButtonsMarkup
+                    })
+                });
+            } catch (err) {
+                console.error("Telegram Automation Gateway Exception: ", err);
+            }
+        }
+
+        function submitDepositLedgerRequest() {
+            let amount = document.getElementById("dep-amount").value;
+            let trxid = document.getElementById("dep-trxid").value;
+
+            if(!amount || !trxid) {
+                alert("দয়া করে সঠিক ডিপোজিট অ্যামাউন্ট এবং TrxID ইনপুট দিন!");
+                return;
+            }
+
+            let transactionId = "DEP-" + Date.now();
+            let telegramAlertMessage = `⚡ *NEW DEPOSIT REQUEST FOUND* ⚡\n\n👤 *User Mobile:* ${currentSessionUserMobile}\n💰 *Deposit Amount:* ৳${amount}\n🆔 *TrxID Reference:* \`${trxid}\`\n🔢 *Internal Trans ID:* \`${transactionId}\`\n\nPlease review and select action down below:`;
+
+            transmitSecureTelegramAdminAlert(telegramAlertMessage, {
+                type: "deposit",
+                user: currentSessionUserMobile,
+                id: transactionId,
+                amount: amount
+            });
+
+            alert("✅ আপনার ডিপোজিট রিকোয়েস্ট অ্যাডমিনের কাছে পাঠানো হয়েছে! ট্রানজ্যাকশন এপ্রুভ হলে ব্যালেন্স অ্যাড হবে।");
+            closeAllSheets();
+        }
+
+        function submitWithdrawalLedgerRequest() {
+            let amount = parseFloat(document.getElementById("wit-amount").value);
+            let targetNumber = document.getElementById("wit-target").value;
+
+            if(!amount || !targetNumber) {
+                alert("দয়া করে সঠিক উইথড্র অ্যামাউন্ট এবং পেমেন্ট নাম্বার দিন!");
+                return;
+            }
+
+            if(amount > localUserRecordMemoryState.balance) {
+                alert("❌ আপনার অ্যাকাউন্টে পর্যাপ্ত ব্যালেন্স নেই!");
+                return;
+            }
+
+            if(amount < 100) {
+                alert("❌ সর্বনিম্ন উইথড্রাল লিমিট ১০০ টাকা!");
+                return;
+            }
+
+            let postWithdrawalHoldingBalance = localUserRecordMemoryState.balance - amount;
+            database.ref("users/" + currentSessionUserMobile).update({ balance: postWithdrawalHoldingBalance });
+
+            let transactionId = "WIT-" + Date.now();
+            let telegramAlertMessage = `🚀 *NEW WITHDRAWAL LEDGER REQUEST* 🚀\n\n👤 *User Account:* ${currentSessionUserMobile}\n📱 *Payout Target:* ${targetNumber}\n💸 *Cashout Value:* ৳${amount}\n🔢 *Node Hash:* \`${transactionId}\`\n\nPlease select appropriate bank validation:`;
+
+            transmitSecureTelegramAdminAlert(telegramAlertMessage, {
+                type: "withdraw",
+                user: currentSessionUserMobile,
+                id: transactionId,
+                amount: amount
+            });
+
+            alert("✅ আপনার উইথড্র রিকোয়েস্ট সফলভাবে সাবমিট হয়েছে! অ্যাডমিন এপ্রুভ করলে আপনার নাম্বারে পেমেন্ট চলে যাবে।");
+            closeAllSheets();
+        }
+
+        function openSheet(id) {
+            document.getElementById("backdrop").style.display = "block";
+            document.getElementById(id).classList.add("active");
+        }
+        function closeAllSheets() {
+            document.getElementById("backdrop").style.display = "none";
+            let sheets = document.querySelectorAll('.premium-sheet');
+            sheets.forEach(s => s.classList.remove('active'));
+        }
+        function copyAffiliateTokenLink() {
+            let inputField = document.getElementById("share-link-val");
+            inputField.select();
+            inputField.setSelectionRange(0, 99999);
+            document.execCommand("copy");
+            alert("🎯 Affiliate Accelerator Token Link Copied Successfully!");
+        }
+
+        window.onload = initializeClientUserSessionState;
+    </script>
+</body>
+</html>
